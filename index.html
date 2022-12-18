@@ -1,0 +1,21 @@
+<!-- 
+  I recognize that I have neglected this HTML file.
+  However, for the purposes of this excercise I wanted to focus on writting Tetris from scratch
+  using JavaScript. This doc is mostly just for running the code in a web browser.
+  I'm not too concerned about styling either.
+-->
+<!DOCTYPE html> 
+<html>
+  <h1>
+    <input type = 'button' id = 'restartButton' value = 'Restart'/>
+    <label id = 'scoreLabel'></label>
+  </h1>
+  <body>
+    <canvas id='mainCanvas' width='600' height='800'></canvas>
+    <canvas id='sideCanvas' width='160' height='160'></canvas>
+    <script src='.\shape.js'></script>
+    <script src='.\main.js'></script>
+    <p>How to play: W to rotate | A/D to move | S to soft fall | Q to hard drop</p>
+    <a href = 'https://tetris.wiki/Scoring'> Scoring based on Original BPS scoring system</a>
+  </body>
+</html>
