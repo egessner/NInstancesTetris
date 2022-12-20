@@ -18,10 +18,12 @@ class Tetris {
     this.BUFFERSPACE = 4;
     this.DFALLSPEED = .5;
 
-    this.delta;
-    this.grid;
-    this.sideGrid;
-    this.requestID;
+    this.delta = 0;
+    this.now = 0;
+    this.grid = 0;
+    this.sideGrid = 0;
+    this.requestID = 0;
+
 
     this.mainCanvas = document.getElementById('mainCanvas');
     this.sideCanvas = document.getElementById('sideCanvas');
@@ -49,9 +51,9 @@ class Tetris {
 
     this.updateSideGrid();
     this.drawSideGrid();
-    document.addEventListener('keypress', onKeyPress);
-    document.addEventListener('keydown', onKeyDown);
-    this.button.addEventListener('click', main);
+    document.addEventListener('keypress', this.onKeyPress);
+    document.addEventListener('keydown', this.onKeyDown);
+    // this.button.addEventListener('click', main);
   }
 
   /**
@@ -410,6 +412,7 @@ class Tetris {
    * @description Main draw loop
    */
   draw() {
+    // getting an error on the next line and no its not becasue of Date.now()
     this.now = Date.now();
     this.delta = this.now - this.then;
 
@@ -431,7 +434,7 @@ class Tetris {
     }
 
     if (!this.gameOver) {
-      this.requestID = requestAnimationFrame(draw);
+      this.requestID = requestAnimationFrame(this.draw);
     } else {
       this.killTetris();
       this.displayGameOver();
