@@ -3,13 +3,15 @@
  * @description
  */
 function main() {
-  tetris = new Tetris();
-  tetris.draw();
+  tetris.push(new Tetris(20, 0, 0));
+  tetris.push(new Tetris(20, 300, 0));
+  tetris.push(new Tetris(20, 0, 400));
+  tetris.push(new Tetris(20, 300, 400));
+  tetris.forEach((tet) => tet.draw());
   document.addEventListener('keypress', onKeyPress);
   document.addEventListener('keydown', onKeyDown);
 }
-let tetris;
-main();
+let tetris = [];
 
 
 /**
@@ -18,11 +20,13 @@ main();
  */
 function onKeyPress(keypress) {
   if (keypress.code == 'KeyW') {
-    tetris.rotate();
+    tetris.forEach((tet) => tet.rotate());
   } else if (keypress.code == 'KeyA' || keypress.code == 'KeyD') {
-    tetris.move(keypress.code);
+    tetris.forEach((tet) => tet.move(keypress.code));
+    // tetris.move(keypress.code);
   } else if (keypress.code == 'KeyQ') {
-    tetris.drop();
+    tetris.forEach((tet) => tet.drop());
+    // tetris.drop();
   }
 }
 
@@ -32,6 +36,9 @@ function onKeyPress(keypress) {
  */
 function onKeyDown(keypress) { // probobly need to move this into runner
   if (keypress.code == 'KeyS') {
-    tetris.fall();
+    tetris.forEach((tet) => tet.fall());
+    // tetris.fall();
   }
 }
+
+main();
