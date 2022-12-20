@@ -51,9 +51,6 @@ class Tetris {
 
     this.updateSideGrid();
     this.drawSideGrid();
-    document.addEventListener('keypress', this.onKeyPress);
-    document.addEventListener('keydown', this.onKeyDown);
-    // this.button.addEventListener('click', main);
   }
 
   /**
@@ -385,34 +382,9 @@ class Tetris {
   }
 
   /**
-   * @description On key press wrapper
-   * @param {*} keypress
-   */
-  onKeyPress(keypress) {
-    if (keypress.code == 'KeyW') {
-      this.rotate();
-    } else if (keypress.code == 'KeyA' || keypress.code == 'KeyD') {
-      this.move(keypress.code);
-    } else if (keypress.code == 'KeyQ') {
-      this.drop();
-    }
-  }
-
-  /**
-   * @description On key down wrapper
-   * @param {*} keypress
-   */
-  onKeyDown(keypress) {
-    if (keypress.code == 'KeyS') {
-      this.fall();
-    }
-  }
-
-  /**
    * @description Main draw loop
    */
   draw() {
-    // getting an error on the next line and no its not becasue of Date.now()
     this.now = Date.now();
     this.delta = this.now - this.then;
 
@@ -424,7 +396,7 @@ class Tetris {
       /* previously: if(framecount % this.FPS == 0) { */
       if (this.framecount >= (this.FPS + this.compFallSpeed)) {
         this.framecount = 0;
-        fall();
+        this.fall();
       }
 
       this.drawShapes();
@@ -434,18 +406,10 @@ class Tetris {
     }
 
     if (!this.gameOver) {
-      this.requestID = requestAnimationFrame(this.draw);
+      this.requestID = requestAnimationFrame(() => this.draw());
     } else {
       this.killTetris();
       this.displayGameOver();
     }
   }
-
-  // /**
-  //  * @description Main
-  //  */
-  // main() {
-  //   initSetup();
-  //   this.requestID = requestAnimationFrame(draw);
-  // }
 };
