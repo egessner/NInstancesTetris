@@ -1,457 +1,448 @@
 /* eslint linebreak-style: ['error', 'windows'] */
 /* GLOBALS */
-const STARTING_X = 7;
-const STARTING_Y = 2;
-const FPS = 30;
-const INTERVAL = 1000 / FPS;
-const OFFSET = 40;
-const SIDEOFFSET = 40;
-const BUFFERSPACE = 4;
-const DFALLSPEED = .5;
-
-let mainCanvas;
-let context;
-let sideCanvas;
-let sideContext;
-let button;
-let now;
-let then;
-let delta;
-let framecount;
-let grid;
-let sideGrid;
-let curShape;
-let nextShape;
-let shapeBag;
-let requestID;
-let gameOver;
-let compFallSpeed;
-let score;
-let scoreLabel;
-
 /**
- * @description init canvases/contexts, init globals, create starting shapes,
- *  draw grids, define and init event listeners
+ * @description
  */
-function initSetup() {
-  mainCanvas = document.getElementById('mainCanvas');
-  sideCanvas = document.getElementById('sideCanvas');
-  scoreLabel = document.getElementById('scoreLabel');
-  button = document.getElementById('restartButton');
-  context = mainCanvas.getContext('2d');
-  sideContext = sideCanvas.getContext('2d');
+class Tetris {
+  /**
+   * @description init canvases/contexts, init globals, create starting shapes,
+   *  draw grids, define and init event listeners
+   */
+  constructor() {
+    this.STARTING_X = 7;
+    this.STARTING_Y = 2;
+    this.FPS = 30;
+    this.INTERVAL = 1000 / this.FPS;
+    this.OFFSET = 40;
+    this.SIDEOFFSET = 40;
+    this.BUFFERSPACE = 4;
+    this.DFALLSPEED = .5;
 
-  then = Date.now();
-  framecount = 0;
-  gameOver = 0;
-  compFallSpeed = 0;
-  score = 0;
-  updateScore();
+    this.delta;
+    this.grid;
+    this.sideGrid;
+    this.requestID;
 
-  createGrids(15, 20 + BUFFERSPACE);
-  // printGrid();
-  // drawGrid();
+    this.mainCanvas = document.getElementById('mainCanvas');
+    this.sideCanvas = document.getElementById('sideCanvas');
+    this.scoreLabel = document.getElementById('scoreLabel');
+    this.button = document.getElementById('restartButton');
+    this.context = this.mainCanvas.getContext('2d');
+    this.sideContext = this.sideCanvas.getContext('2d');
 
-  shapeBag = [0, 1, 2, 3, 4, 5, 6];
-  curShape = new Shape(STARTING_X, STARTING_Y, shapeBag);
-  shapeBag.splice(shapeBag.indexOf(curShape.index), 1);
-  nextShape = new Shape(STARTING_X, STARTING_Y, shapeBag);
-  shapeBag.splice(shapeBag.indexOf(nextShape.index), 1);
+    this.then = Date.now();
+    this.framecount = 0;
+    this.gameOver = 0;
+    this.compFallSpeed = 0;
+    this.score = 0;
+    this.updateScore();
 
-  updateSideGrid();
-  drawSideGrid();
-  document.addEventListener('keypress', onKeyPress);
-  document.addEventListener('keydown', onKeyDown);
-  button.addEventListener('click', main);
-}
+    this.createGrids(15, 20 + this.BUFFERSPACE);
+    // this.printGrid();
+    // this.drawGrid();
 
-/**
- * @description creates a height * width 2d array main grid and 4*4 sidegrid
- * @param {int} width
- * @param {int} height
- */
-function createGrids(width, height) {
-  grid = [];
-  for (let h = 0; h < height; h++) {
-    grid.push(new Array(width).fill(0));
+    this.shapeBag = [0, 1, 2, 3, 4, 5, 6];
+    this.curShape = new Shape(this.STARTING_X, this.STARTING_Y, this.shapeBag);
+    this.shapeBag.splice(this.shapeBag.indexOf(this.curShape.index), 1);
+    this.nextShape = new Shape(this.STARTING_X, this.STARTING_Y, this.shapeBag);
+    this.shapeBag.splice(this.shapeBag.indexOf(this.nextShape.index), 1);
+
+    this.updateSideGrid();
+    this.drawSideGrid();
+    document.addEventListener('keypress', onKeyPress);
+    document.addEventListener('keydown', onKeyDown);
+    this.button.addEventListener('click', main);
   }
 
-  sideGrid = [];
-  for (let h = 0; h < 4; h++) {
-    sideGrid.push(new Array(4).fill(0));
+  /**
+   * @description creates a height * width 2d array main grid and 4*4 sidegrid
+   * @param {int} width
+   * @param {int} height
+   */
+  createGrids(width, height) {
+    this.grid = [];
+    for (let h = 0; h < height; h++) {
+      this.grid.push(new Array(width).fill(0));
+    }
+
+    this.sideGrid = [];
+    for (let h = 0; h < 4; h++) {
+      this.sideGrid.push(new Array(4).fill(0));
+    }
   }
-}
 
-// /**
-//  * @description print the grid to console - debugging
-//  */
-// function printGrid() {
-//   for (let i = 0; i < grid.length; i++) {
-//     console.log(i + '\t' + grid[i].toString() + '\n');
-//   }
-// }
+  // /**
+  //  * @description print the grid to console - debugging
+  //  */
+  // printGrid() {
+  //   for (let i = 0; i < this.grid.length; i++) {
+  //     console.log(i + '\t' + this.grid[i].toString() + '\n');
+  //   }
+  // }
 
-// /**
-//  * @description draw grid on canvas - debugging
-//  */
-// function drawGrid() {
-//   for (let y = 0; y < grid.length; y++) {
-//     for (let x = 0; x < grid[y].length; x++) {
-//       if (grid[y][x] == 0) {
-//         context.strokeRect(x * OFFSET, y * OFFSET - (OFFSET * BUFFERSPACE),
-//             OFFSET, OFFSET);
-//       }
-//     }
-//   }
-// }
+  // /**
+  //  * @description draw grid on canvas - debugging
+  //  */
+  // drawGrid() {
+  //   for (let y = 0; y < this.grid.length; y++) {
+  //     for (let x = 0; x < this.grid[y].length; x++) {
+  //       if (this.grid[y][x] == 0) {
+  //         this.context.strokeRect(x * this.OFFSET, y * this.OFFSET -
+  //             (this.OFFSET * this.BUFFERSPACE), this.OFFSET, this.OFFSET);
+  //       }
+  //     }
+  //   }
+  // }
 
-/**
- * @description draw outline of main canvas
- */
-function drawOutline() {
-  context.strokeRect(0, 0, mainCanvas.width, mainCanvas.height);
-}
+  /**
+   * @description draw outline of main canvas
+   */
+  drawOutline() {
+    this.context.strokeRect(0, 0, this.mainCanvas.width,
+        this.mainCanvas.height);
+  }
 
-/**
- * @description draws all shapes on canvas at grid positions
- */
-function drawShapes() {
-  for (let y = 0; y < grid.length; y++) {
-    for (let x = 0; x < grid[y].length; x++) {
-      if (grid[y][x] != 0) {
-        context.fillStyle = grid[y][x].color;
-        context.fillRect(x * OFFSET, y * OFFSET - (OFFSET * BUFFERSPACE),
-            OFFSET, OFFSET);
-        context.strokeRect(x * OFFSET, y * OFFSET - (OFFSET * BUFFERSPACE),
-            OFFSET, OFFSET);
-      } else {
-        context.fillStyle = '#000000';
-        context.fillRect(x * OFFSET, y * OFFSET - (OFFSET * BUFFERSPACE),
-            OFFSET, OFFSET);
+  /**
+   * @description draws all shapes on canvas at grid positions
+   */
+  drawShapes() {
+    for (let y = 0; y < this.grid.length; y++) {
+      for (let x = 0; x < this.grid[y].length; x++) {
+        if (this.grid[y][x] != 0) {
+          this.context.fillStyle = this.grid[y][x].color;
+          this.context.fillRect(x * this.OFFSET, y * this.OFFSET -
+            (this.OFFSET * this.BUFFERSPACE), this.OFFSET, this.OFFSET);
+          this.context.strokeRect(x * this.OFFSET, y * this.OFFSET -
+            (this.OFFSET * this.BUFFERSPACE), this.OFFSET, this.OFFSET);
+        } else {
+          this.context.fillStyle = '#000000';
+          this.context.fillRect(x * this.OFFSET, y * this.OFFSET -
+            (this.OFFSET * this.BUFFERSPACE), this.OFFSET, this.OFFSET);
+        }
       }
     }
   }
-}
 
-/**
- * @description draws side grid displaying next shape
- */
-function drawSideGrid() {
-  for (let y = 0; y < sideGrid.length; y++) {
-    for (let x = 0; x < sideGrid[y].length; x++) {
-      if (sideGrid[y][x] != 0) {
-        sideContext.fillStyle = sideGrid[y][x].color;
-        sideContext.fillRect(x * SIDEOFFSET, y * SIDEOFFSET,
-            SIDEOFFSET, SIDEOFFSET);
-        sideContext.strokeRect(x * SIDEOFFSET, y * SIDEOFFSET,
-            SIDEOFFSET, SIDEOFFSET);
-      } else {
-        sideContext.fillStyle = '#ffffff';
-        sideContext.fillRect(x * SIDEOFFSET, y * SIDEOFFSET,
-            SIDEOFFSET, SIDEOFFSET);
+  /**
+   * @description draws side grid displaying next shape
+   */
+  drawSideGrid() {
+    for (let y = 0; y < this.sideGrid.length; y++) {
+      for (let x = 0; x < this.sideGrid[y].length; x++) {
+        if (this.sideGrid[y][x] != 0) {
+          this.sideContext.fillStyle = this.sideGrid[y][x].color;
+          this.sideContext.fillRect(x * this.SIDEOFFSET, y * this.SIDEOFFSET,
+              this.SIDEOFFSET, this.SIDEOFFSET);
+          this.sideContext.strokeRect(x * this.SIDEOFFSET, y * this.SIDEOFFSET,
+              this.SIDEOFFSET, this.SIDEOFFSET);
+        } else {
+          this.sideContext.fillStyle = '#ffffff';
+          this.sideContext.fillRect(x * this.SIDEOFFSET, y * this.SIDEOFFSET,
+              this.SIDEOFFSET, this.SIDEOFFSET);
+        }
       }
     }
   }
-}
 
-/**
- * @description Try to drop curShape 1
- * @return {undefined}
- */
-function fall() {
-  let newpositions = [];
-  newpositions = curShape.fall();
+  /**
+   * @description Try to drop curShape 1
+   * @return {undefined}
+   */
+  fall() {
+    let newpositions = [];
+    newpositions = this.curShape.fall();
 
-  if (borderDetection(newpositions) == 1) {
-    pickNextShape();
-    return;
+    if (this.borderDetection(newpositions) == 1) {
+      this.pickNextShape();
+      return;
+    }
+
+    if (this.collisionDetection(newpositions) == 1) {
+      this.pickNextShape();
+      return; // curShape can no longer drop - select next shape
+    }
+
+    // newpositions are valid, set to curShape
+    this.curShape.position = newpositions;
+    this.updateGrid();
   }
 
-  if (collisionDetection(newpositions) == 1) {
-    pickNextShape();
-    return; // curShape can no longer drop - select next shape
+  /**
+   * @description do later
+   */
+  drop() {
+    let newpositions = this.curShape.fall();
+    let blocksFallen = 1;
+    while (this.borderDetection(newpositions) != 1 &&
+    this.collisionDetection(newpositions) != 1) {
+      this.curShape.position = newpositions;
+      this.updateGrid();
+      newpositions = this.curShape.fall();
+      blocksFallen++;
+    }
+    this.curShape.position = newpositions;
+    this.score+= blocksFallen++;
+    this.pickNextShape();
   }
 
-  // newpositions are valid, set to curShape
-  curShape.position = newpositions;
-  updateGrid();
-}
+  /**
+   * @description Try to move curShape left or right one
+   * @param {*} keyCode
+   * @return {undefined}
+   */
+  move(keyCode) {
+    let newpositions = [];
+    if (keyCode == 'KeyA') {
+      newpositions = this.curShape.move(-1); // move left
+    } else if (keyCode == 'KeyD') {
+      newpositions = this.curShape.move(1); // move right
+    }
 
-/**
- * @description do later
- */
-function drop() {
-  let newpositions = curShape.fall();
-  let blocksFallen = 1;
-  while (borderDetection(newpositions) != 1 &&
-   collisionDetection(newpositions) != 1) {
-    curShape.position = newpositions;
-    updateGrid();
-    newpositions = curShape.fall();
-    blocksFallen++;
-  }
-  curShape.position = newpositions;
-  score+= blocksFallen++;
-  pickNextShape();
-}
+    if (this.collisionDetection(newpositions) == 1) {
+      return; // do nothing
+    }
 
-/**
- * @description Try to move curShape left or right one
- * @param {*} keyCode
- * @return {undefined}
- */
-function move(keyCode) {
-  let newpositions = [];
-  if (keyCode == 'KeyA') {
-    newpositions = curShape.move(-1); // move left
-  } else if (keyCode == 'KeyD') {
-    newpositions = curShape.move(1); // move right
+    const borderHit = this.borderDetection(newpositions);
+    if (borderHit == 0) { // no hit
+      this.curShape.position = newpositions;
+      this.updateGrid();
+    }
   }
 
-  if (collisionDetection(newpositions) == 1) {
-    return; // do nothing
+  /**
+   * @description Try to rotate curShape
+   */
+  rotate() {
+    const newpositions = this.curShape.rotate();
+    if (this.borderDetection(newpositions) == 0 &&
+          this.collisionDetection(newpositions) == 0) { // no hit
+      this.curShape.position = newpositions;
+      this.updateGrid();
+    }
   }
 
-  const borderHit = borderDetection(newpositions);
-  if (borderHit == 0) { // no hit
-    curShape.position = newpositions;
-    updateGrid();
-  }
-}
+  /**
+   * @description updateGrid with new positions, remove old ones
+   */
+  updateGrid() {
+    const lastPosition = this.curShape.lastPosition;
+    lastPosition.forEach((square) => { // clear old positions
+      this.grid[square[1]][square[0]] = 0;
+    });
 
-/**
- * @description Try to rotate curShape
- */
-function rotate() {
-  const newpositions = curShape.rotate();
-  if (borderDetection(newpositions) == 0 &&
-        collisionDetection(newpositions) == 0) { // no hit
-    curShape.position = newpositions;
-    updateGrid();
-  }
-}
-
-/**
- * @description updateGrid with new positions, remove old ones
- */
-function updateGrid() {
-  const lastPosition = curShape.lastPosition;
-  lastPosition.forEach((square) => { // clear old positions
-    grid[square[1]][square[0]] = 0;
-  });
-
-  const position = curShape.position;
-  position.forEach((square) => { // set new positions
-    grid[square[1]][square[0]] = curShape;
-  });
-}
-
-/**
- * @description UpdateSideGrid with nextShape
- */
-function updateSideGrid() {
-  sideGrid.forEach((row) => row.fill(0)); // clear grid
-
-  nextShape.position.forEach((pos) => { // set grid with nextShape
-    sideGrid[pos[1] - (STARTING_Y - 1)][pos[0] - (STARTING_X - 1)] = nextShape;
-  });
-}
-
-/**
- * @description Check for border collisons
- * @param {*} position
- * @return {int} 1: bottom hit 2: side hit; 0: no hit
- */
-function borderDetection(position) {
-  // find lowest square
-  let lowY = 0;
-  let leftX = 0;
-  let rightX = grid[0].length;
-
-  position.forEach(([x, y]) => { // we only need to check the outer coords
-    lowY = Math.max(lowY, y);
-    leftX = Math.max(leftX, x);
-    rightX = Math.min(rightX, x);
-  });
-
-  if (lowY == grid.length) { // bottom hit
-    return 1;
-  }
-  if (leftX == grid[0].length) { // side hit
-    return 2;
-  }
-  if (rightX == -1) { // side hit
-    return 2;
+    const position = this.curShape.position;
+    position.forEach((square) => { // set new positions
+      this.grid[square[1]][square[0]] = this.curShape;
+    });
   }
 
-  return 0; // no hit
-}
+  /**
+   * @description UpdateSideGrid with nextShape
+   */
+  updateSideGrid() {
+    this.sideGrid.forEach((row) => row.fill(0)); // clear grid
 
-/**
- * @description Check for shape collisions
- * @param {*} position
- * @return {int} 1: collision with another shape 0: no collision
- */
-function collisionDetection(position) {
-  for (let i = 0; i < position.length; i++) {
-    if (grid[position[i][1]][position[i][0]] != 0 &&
-        grid[position[i][1]][position[i][0]] != curShape) {
+    this.nextShape.position.forEach((pos) => { // set grid with nextShape
+      this.sideGrid[pos[1] - (this.STARTING_Y - 1)][pos[0] -
+      (this.STARTING_X - 1)] = this.nextShape;
+    });
+  }
+
+  /**
+   * @description Check for border collisons
+   * @param {*} position
+   * @return {int} 1: bottom hit 2: side hit; 0: no hit
+   */
+  borderDetection(position) {
+    // find lowest square
+    let lowY = 0;
+    let leftX = 0;
+    let rightX = this.grid[0].length;
+
+    position.forEach(([x, y]) => { // we only need to check the outer coords
+      lowY = Math.max(lowY, y);
+      leftX = Math.max(leftX, x);
+      rightX = Math.min(rightX, x);
+    });
+
+    if (lowY == this.grid.length) { // bottom hit
       return 1;
     }
-  }
-  return 0;
-}
-
-/**
- * @description Check for gameOver - update global gameOver if true
- */
-function checkGameOver() {
-  curShape.position.forEach(([x, y]) => {
-    if (y <= BUFFERSPACE) {
-      gameOver = 1;
+    if (leftX == this.grid[0].length) { // side hit
+      return 2;
     }
-  });
-}
-
-/**
- * @description Dsiplay Game over using the HTML elements
- */
-function displayGameOver() {
-  scoreLabel.innerHTML = 'GAME OVER   Final Score: ' + score;
-}
-
-/**
- * @descriptionv Check for a row full of shapes - clear if true
- * @source https://tetris.wiki/Scoring using Original BPS scoring system
- */
-function checkClearRow() {
-  // find all rows without a 0 (full rows)
-  const fullRows = grid.filter((row) => !row.includes(0));
-
-  fullRows.forEach((row) => { // remove full rows
-    grid = grid.slice(0, grid.indexOf(row)).concat(
-        grid.slice(grid.indexOf(row) + 1));
-    grid.unshift(new Array(grid[0].length).fill(0)); // add in empty row
-  });
-
-  if (fullRows.length == 1) {
-    score+=40;
-  } else if (fullRows.length == 2) {
-    score+=100;
-  } else if (fullRows.length == 3) {
-    score+=300;
-  } else if (fullRows.length == 4) {
-    score+=1200;
-  }
-}
-
-/**
- * @description Cancel animation frame; remove event listeners
- */
-function killTetris() {
-  cancelAnimationFrame(requestID);
-  document.removeEventListener('keypress', onKeyPress);
-  document.removeEventListener('keydown', onKeyDown);
-}
-
-/**
- * @description CheckGameOver; select next shape; check cleared row;
- *  updated global compFallSpeed
- * @return {undefined}
- */
-function pickNextShape() {
-  checkGameOver();
-  if (gameOver) {
-    return;
-  }
-
-  curShape = nextShape;
-  if (shapeBag.length == 0) {
-    shapeBag = [0, 1, 2, 3, 4, 5, 6];
-  }
-  // make the 7 2 constant starting points
-  nextShape = new Shape(STARTING_X, STARTING_Y, shapeBag);
-  shapeBag.splice(shapeBag.indexOf(nextShape.index), 1);
-
-  checkClearRow();
-
-  updateScore();
-  compFallSpeed = (FPS + compFallSpeed) <= 5 ?
-    compFallSpeed : compFallSpeed - DFALLSPEED;
-
-  updateSideGrid();
-  drawSideGrid();
-}
-
-/**
- * @description Update HTML label score
- */
-function updateScore() {
-  scoreLabel.innerHTML = 'Score ' + score;
-}
-
-/**
- * @description On key press wrapper
- * @param {*} keypress
- */
-function onKeyPress(keypress) {
-  if (keypress.code == 'KeyW') {
-    rotate();
-  } else if (keypress.code == 'KeyA' || keypress.code == 'KeyD') {
-    move(keypress.code);
-  } else if (keypress.code == 'KeyQ') {
-    drop();
-  }
-}
-
-/**
- * @description On key down wrapper
- * @param {*} keypress
- */
-function onKeyDown(keypress) {
-  if (keypress.code == 'KeyS') {
-    fall();
-  }
-}
-
-/**
- * @description Main draw loop
- */
-function draw() {
-  now = Date.now();
-  delta = now - then;
-
-  if (delta > INTERVAL) {
-    framecount++;
-    then = now - (delta % INTERVAL);
-
-    // every fall frame
-    /* previously: if(framecount % FPS == 0) { */
-    if (framecount >= (FPS + compFallSpeed)) {
-      framecount = 0;
-      fall();
+    if (rightX == -1) { // side hit
+      return 2;
     }
 
-    drawShapes();
-    drawOutline();
-    // drawGrid();
-    // printGrid();
+    return 0; // no hit
   }
 
-  if (!gameOver) {
-    requestID = requestAnimationFrame(draw);
-  } else {
-    killTetris();
-    displayGameOver();
+  /**
+   * @description Check for shape collisions
+   * @param {*} position
+   * @return {int} 1: collision with another shape 0: no collision
+   */
+  collisionDetection(position) {
+    for (let i = 0; i < position.length; i++) {
+      if (this.grid[position[i][1]][position[i][0]] != 0 &&
+          this.grid[position[i][1]][position[i][0]] != this.curShape) {
+        return 1;
+      }
+    }
+    return 0;
   }
-}
 
-/**
- * @description Main
- */
-function main() {
-  initSetup();
-  requestID = requestAnimationFrame(draw);
-}
+  /**
+   * @description Check for gameOver - update global this.gameOver if true
+   */
+  checkGameOver() {
+    this.curShape.position.forEach(([x, y]) => {
+      if (y <= this.BUFFERSPACE) {
+        this.gameOver = 1;
+      }
+    });
+  }
 
-main();
+  /**
+   * @description Dsiplay Game over using the HTML elements
+   */
+  displayGameOver() {
+    this.scoreLabel.innerHTML = 'GAME OVER   Final Score: ' + this.score;
+  }
+
+  /**
+   * @descriptionv Check for a row full of shapes - clear if true
+   * @source https://tetris.wiki/Scoring using Original BPS scoring system
+   */
+  checkClearRow() {
+    // find all rows without a 0 (full rows)
+    const fullRows = this.grid.filter((row) => !row.includes(0));
+
+    fullRows.forEach((row) => { // remove full rows
+      this.grid = this.grid.slice(0, this.grid.indexOf(row)).concat(
+          this.grid.slice(this.grid.indexOf(row) + 1));
+      // add in empty row
+      this.grid.unshift(new Array(this.grid[0].length).fill(0));
+    });
+
+    if (fullRows.length == 1) {
+      this.score+=40;
+    } else if (fullRows.length == 2) {
+      this.score+=100;
+    } else if (fullRows.length == 3) {
+      this.score+=300;
+    } else if (fullRows.length == 4) {
+      this.score+=1200;
+    }
+  }
+
+  /**
+   * @description Cancel animation frame; remove event listeners
+   */
+  killTetris() {
+    cancelAnimationFrame(this.requestID);
+    document.removeEventListener('keypress', onKeyPress);
+    document.removeEventListener('keydown', onKeyDown);
+  }
+
+  /**
+   * @description CheckGameOver; select next shape; check cleared row;
+   *  updated global compFallSpeed
+   * @return {undefined}
+   */
+  pickNextShape() {
+    this.checkGameOver();
+    if (this.gameOver) {
+      return;
+    }
+
+    this.curShape = this.nextShape;
+    if (this.shapeBag.length == 0) {
+      this.shapeBag = [0, 1, 2, 3, 4, 5, 6];
+    }
+    // make the 7 2 constant starting points
+    this.nextShape = new Shape(this.STARTING_X, this.STARTING_Y, this.shapeBag);
+    this.shapeBag.splice(this.shapeBag.indexOf(this.nextShape.index), 1);
+
+    this.checkClearRow();
+
+    this.updateScore();
+    this.compFallSpeed = (this.FPS + this.compFallSpeed) <= 5 ?
+      this.compFallSpeed : this.compFallSpeed - this.DFALLSPEED;
+
+    this.updateSideGrid();
+    this.drawSideGrid();
+  }
+
+  /**
+   * @description Update HTML label score
+   */
+  updateScore() {
+    this.scoreLabel.innerHTML = 'Score ' + this.score;
+  }
+
+  /**
+   * @description On key press wrapper
+   * @param {*} keypress
+   */
+  onKeyPress(keypress) {
+    if (keypress.code == 'KeyW') {
+      this.rotate();
+    } else if (keypress.code == 'KeyA' || keypress.code == 'KeyD') {
+      this.move(keypress.code);
+    } else if (keypress.code == 'KeyQ') {
+      this.drop();
+    }
+  }
+
+  /**
+   * @description On key down wrapper
+   * @param {*} keypress
+   */
+  onKeyDown(keypress) {
+    if (keypress.code == 'KeyS') {
+      this.fall();
+    }
+  }
+
+  /**
+   * @description Main draw loop
+   */
+  draw() {
+    this.now = Date.now();
+    this.delta = this.now - this.then;
+
+    if (this.delta > this.INTERVAL) {
+      this.framecount++;
+      this.then = this.now - (this.delta % this.INTERVAL);
+
+      // every fall frame
+      /* previously: if(framecount % this.FPS == 0) { */
+      if (this.framecount >= (this.FPS + this.compFallSpeed)) {
+        this.framecount = 0;
+        fall();
+      }
+
+      this.drawShapes();
+      this.drawOutline();
+      // drawGrid();
+      // printGrid();
+    }
+
+    if (!this.gameOver) {
+      this.requestID = requestAnimationFrame(draw);
+    } else {
+      this.killTetris();
+      this.displayGameOver();
+    }
+  }
+
+  // /**
+  //  * @description Main
+  //  */
+  // main() {
+  //   initSetup();
+  //   this.requestID = requestAnimationFrame(draw);
+  // }
+};
