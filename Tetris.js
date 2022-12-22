@@ -9,6 +9,7 @@ class Tetris {
    *  draw grids, define and init event listeners
    * @param {int} scale
    * @param {int} xPad
+   * @param {int} yPad
    */
   constructor(scale, xPad, yPad) {
     this.STARTING_X = 7;
@@ -16,7 +17,7 @@ class Tetris {
     this.FPS = 30;
     this.INTERVAL = 1000 / this.FPS;
     this.SCALE = scale;
-    this.SIDEOFFSET = 40;
+    this.SIDESCALE = 40;
     this.BUFFERSPACE = 4;
     this.DFALLSPEED = .5;
     this.xPad = xPad;
@@ -32,7 +33,6 @@ class Tetris {
     this.mainCanvas = document.getElementById('mainCanvas');
     this.sideCanvas = document.getElementById('sideCanvas');
     this.scoreLabel = document.getElementById('scoreLabel');
-    this.button = document.getElementById('restartButton');
     this.context = this.mainCanvas.getContext('2d');
     this.sideContext = this.sideCanvas.getContext('2d');
 
@@ -110,19 +110,22 @@ class Tetris {
    * I know I could do this with canvas.scale() and translate and keep a stack
    * but the math makes much more sense to me
    */
-  drawShapes() { // need a way to NOT draw the buffer
-    for (let y = 0; y < this.grid.length; y++) {
+  drawShapes() {
+    for (let y = this.BUFFERSPACE; y < this.grid.length; y++) {
       for (let x = 0; x < this.grid[y].length; x++) {
         if (this.grid[y][x] != 0) {
           this.context.fillStyle = this.grid[y][x].color;
-          this.context.fillRect(this.xPad + x * this.SCALE, this.yPad + y * this.SCALE -
-            (this.SCALE * this.BUFFERSPACE), this.SCALE, this.SCALE);
-          this.context.strokeRect(this.xPad + x * this.SCALE, this.yPad + y * this.SCALE -
-            (this.SCALE * this.BUFFERSPACE), this.SCALE, this.SCALE);
+          this.context.fillRect(this.xPad + x * this.SCALE,
+              this.yPad + y * this.SCALE - (this.SCALE * this.BUFFERSPACE),
+              this.SCALE, this.SCALE);
+          this.context.strokeRect(this.xPad + x * this.SCALE,
+              this.yPad + y * this.SCALE - (this.SCALE * this.BUFFERSPACE),
+              this.SCALE, this.SCALE);
         } else {
           this.context.fillStyle = '#000000';
-          this.context.fillRect(this.xPad + x * this.SCALE, this.yPad + y * this.SCALE -
-            (this.SCALE * this.BUFFERSPACE), this.SCALE, this.SCALE);
+          this.context.fillRect(this.xPad + x * this.SCALE,
+              this.yPad + y * this.SCALE - (this.SCALE * this.BUFFERSPACE),
+              this.SCALE, this.SCALE);
         }
       }
     }
@@ -136,14 +139,14 @@ class Tetris {
       for (let x = 0; x < this.sideGrid[y].length; x++) {
         if (this.sideGrid[y][x] != 0) {
           this.sideContext.fillStyle = this.sideGrid[y][x].color;
-          this.sideContext.fillRect(x * this.SIDEOFFSET, y * this.SIDEOFFSET,
-              this.SIDEOFFSET, this.SIDEOFFSET);
-          this.sideContext.strokeRect(x * this.SIDEOFFSET, y * this.SIDEOFFSET,
-              this.SIDEOFFSET, this.SIDEOFFSET);
+          this.sideContext.fillRect(x * this.SIDESCALE, y * this.SIDESCALE,
+              this.SIDESCALE, this.SIDESCALE);
+          this.sideContext.strokeRect(x * this.SIDESCALE, y * this.SIDESCALE,
+              this.SIDESCALE, this.SIDESCALE);
         } else {
           this.sideContext.fillStyle = '#ffffff';
-          this.sideContext.fillRect(x * this.SIDEOFFSET, y * this.SIDEOFFSET,
-              this.SIDEOFFSET, this.SIDEOFFSET);
+          this.sideContext.fillRect(x * this.SIDESCALE, y * this.SIDESCALE,
+              this.SIDESCALE, this.SIDESCALE);
         }
       }
     }
@@ -347,8 +350,8 @@ class Tetris {
    */
   killTetris() {
     cancelAnimationFrame(this.requestID);
-    document.removeEventListener('keypress', onKeyPress);
-    document.removeEventListener('keydown', onKeyDown); // this will need to change
+    // document.removeEventListener('keypress', onKeyPress);
+    // document.removeEventListener('keydown', onKeyDown);
   }
 
   /**
