@@ -58,7 +58,7 @@ function createTetrisArray() {
   tetris = [];
   // determine size of square tetris array
   let i;
-  for (i = n; i < n*2; i++) {
+  for (i = n; ; i++) {
     const sqr = Math.sqrt(i);
     if (Number.isInteger(sqr)) {
       i = sqr;
