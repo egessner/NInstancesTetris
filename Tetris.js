@@ -32,7 +32,7 @@ class Tetris {
 
     this.mainCanvas = document.getElementById('mainCanvas');
     this.sideCanvas = document.getElementById('sideCanvas');
-    this.scoreLabel = document.getElementById('scoreLabel');
+    // this.scoreLabel = document.getElementById('scoreLabel');
     this.context = this.mainCanvas.getContext('2d');
     this.sideContext = this.sideCanvas.getContext('2d');
 
@@ -54,7 +54,7 @@ class Tetris {
     this.shapeBag.splice(this.shapeBag.indexOf(this.nextShape.index), 1);
 
     this.updateSideGrid();
-    this.drawSideGrid();
+    // this.drawSideGrid();
   }
 
   /**
@@ -316,7 +316,7 @@ class Tetris {
    * @description Dsiplay Game over using the HTML elements
    */
   displayGameOver() {
-    this.scoreLabel.innerHTML = 'GAME OVER   Final Score: ' + this.score;
+    // this.scoreLabel.innerHTML = 'GAME OVER   Final Score: ' + this.score;
   }
 
   /**
@@ -380,14 +380,14 @@ class Tetris {
       this.compFallSpeed : this.compFallSpeed - this.DFALLSPEED;
 
     this.updateSideGrid();
-    this.drawSideGrid();
+    // this.drawSideGrid();
   }
 
   /**
    * @description Update HTML label score
    */
   updateScore() {
-    this.scoreLabel.innerHTML = 'Score ' + this.score;
+    // this.scoreLabel.innerHTML = 'Score ' + this.score;
   }
 
   /**
